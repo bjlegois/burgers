@@ -309,16 +309,15 @@
   }
 
   /**
-   * "9. SAUCE A — BLACK PEPPER AIOLI (CINCY STACK-INSPIRED)"
+   * "9. SAUCE A — BLACK PEPPER AIOLI (Cincy Stack-inspired)"
    *   → { num: "9", text: "Sauce A: black pepper aioli (Cincy Stack-inspired)" }
+   * Only ALL-CAPS words are lowered; words you typed in normal case stay as typed.
    */
   function tidySection(s, phrases) {
     const m = String(s).match(/^\s*([0-9]+[A-Z]?)\.\s*(.*)$/);
     const num = m ? m[1] : '';
-    const raw = (m ? m[2] : String(s)).replace(/\s+—\s+/g, ': ');
-    // Mixed-case headings were written on purpose: leave them alone.
-    if (raw !== raw.toUpperCase()) return { num: num, text: raw };
-    let text = raw.toLowerCase();
+    let text = (m ? m[2] : String(s)).replace(/\s+—\s+/g, ': ');
+    text = text.replace(/[A-Za-z][A-Za-z']*/g, function (w) { return w === w.toUpperCase() ? w.toLowerCase() : w; });
     // A lone letter right before a colon is a label ("Sauce A:"), not the word "a".
     text = text.replace(/\b([a-z])(?=:)/g, function (c) { return c.toUpperCase(); });
     (phrases || []).forEach(function (p) {
