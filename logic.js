@@ -279,23 +279,52 @@
 
   /* --------------------------------------------------------- tutorial */
 
-  function groupTutorial(rows) {
+  /**
+   * Groups the tutorial tab by section. `names` (the ranked burgers) lets
+   * headings keep proper nouns like "Cincy Stack" when the sheet is all caps.
+   */
+  function groupTutorial(rows, names) {
+    const phrases = properPhrases(names);
     const out = [];
     const by = {};
     (rows || []).forEach(function (r) {
       const s = String(r.Section || '').trim();
       if (!s) return;
-      if (!by[s]) { by[s] = { section: s, title: tidySection(s), items: [] }; out.push(by[s]); }
+      if (!by[s]) { by[s] = { section: s, title: tidySection(s, phrases), items: [] }; out.push(by[s]); }
       by[s].items.push({ element: String(r.Element || '').trim(), spec: String(r.Spec || '').trim(), detail: String(r.Detail || '').trim() });
     });
     return out;
   }
 
-  /** "4B. COOKING — SMASH BURGER ALTERNATIVE" → { num: "4B", text: "Cooking: smash burger alternative" } */
-  function tidySection(s) {
+  /** Two-plus-word names from the list ("Cincy Stack", "Red Robin"), longest first. */
+  function properPhrases(rows) {
+    const seen = {};
+    (rows || []).forEach(function (r) {
+      [String(r.burger || '').replace(/\s+burger$/i, ''), String(r.restaurant || '')].forEach(function (n) {
+        n = n.replace(/\([^)]*\)/g, '').trim();
+        if (n.split(/\s+/).length >= 2 && /^[A-Z]/.test(n)) seen[n.toLowerCase()] = n;
+      });
+    });
+    return Object.keys(seen).sort(function (a, b) { return b.length - a.length; }).map(function (k) { return seen[k]; });
+  }
+
+  /**
+   * "9. SAUCE A — BLACK PEPPER AIOLI (CINCY STACK-INSPIRED)"
+   *   → { num: "9", text: "Sauce A: black pepper aioli (Cincy Stack-inspired)" }
+   */
+  function tidySection(s, phrases) {
     const m = String(s).match(/^\s*([0-9]+[A-Z]?)\.\s*(.*)$/);
     const num = m ? m[1] : '';
-    let text = (m ? m[2] : s).replace(/\s+—\s+/g, ': ').toLowerCase();
+    const raw = (m ? m[2] : String(s)).replace(/\s+—\s+/g, ': ');
+    // Mixed-case headings were written on purpose: leave them alone.
+    if (raw !== raw.toUpperCase()) return { num: num, text: raw };
+    let text = raw.toLowerCase();
+    // A lone letter right before a colon is a label ("Sauce A:"), not the word "a".
+    text = text.replace(/\b([a-z])(?=:)/g, function (c) { return c.toUpperCase(); });
+    (phrases || []).forEach(function (p) {
+      const re = new RegExp('\\b' + p.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g');
+      text = text.replace(re, p);
+    });
     text = text.charAt(0).toUpperCase() + text.slice(1);
     return { num: num, text: text };
   }

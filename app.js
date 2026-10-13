@@ -71,7 +71,7 @@
   function applyData(d) {
     if (d.rankings) state.rankings = d.rankings;
     if (d.formula) state.formula = L.parseFormula(d.formula);
-    if (d.tutorial) state.tutorial = L.groupTutorial(d.tutorial);
+    if (d.tutorial) state.tutorial = L.groupTutorial(d.tutorial, state.rankings);
     if (d.fetchedAt) state.fetchedAt = d.fetchedAt;
     rerank();
   }
