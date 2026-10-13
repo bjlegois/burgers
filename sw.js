@@ -1,6 +1,6 @@
 // Keeps the app opening with no signal. The burger data itself is cached by
 // the page (localStorage); this only caches the app's own files.
-const CACHE = 'burgers-shell-v1';
+const CACHE = 'burgers-shell-v2';
 const SHELL = ['./', 'index.html', 'styles.css', 'logic.js', 'app.js', 'config.js', 'manifest.webmanifest', 'icon-192.png'];
 
 self.addEventListener('install', (e) => {
@@ -28,8 +28,11 @@ self.addEventListener('fetch', (e) => {
   }
 
   // The app's own files: network first so updates show up, cache when offline.
+  // 'no-cache' makes the browser check with GitHub instead of trusting its
+  // 10-minute copy, so a fix shows on the next open.
   if (url.origin === self.location.origin) {
-    e.respondWith(fetch(req).then((res) => {
+    const fresh = req.mode === 'navigate' ? fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }) : fetch(req, { cache: 'no-cache' });
+    e.respondWith(fresh.then((res) => {
       if (res.ok) caches.open(CACHE).then((c) => c.put(req, res.clone()));
       return res;
     }).catch(() => caches.match(req, { ignoreSearch: true }).then((hit) => hit || caches.match('index.html'))));
