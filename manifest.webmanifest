@@ -1,0 +1,14 @@
+{
+  "name": "Burger Rankings",
+  "short_name": "Burgers",
+  "start_url": "./#rankings",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ECEEEF",
+  "theme_color": "#E2A72E",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

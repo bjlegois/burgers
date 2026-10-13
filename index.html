@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Burger Rankings</title>
+  <meta name="description" content="Bryce's burger rankings, ranked by score.">
+  <meta name="theme-color" content="#E2A72E">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Burgers">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-row">
+      <h1 id="title">Burger Rankings</h1>
+      <div class="top-actions">
+        <button class="icon-btn" id="menuBtn" aria-label="More options" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        </button>
+        <button class="add-btn" id="addBtn" hidden>Add burger</button>
+      </div>
+    </div>
+    <p class="sub" id="sub" aria-live="polite"></p>
+    <div class="menu" id="menu" role="menu" hidden>
+      <button role="menuitem" data-act="share">Share this list</button>
+      <button role="menuitem" data-act="refresh">Refresh from the sheet</button>
+      <button role="menuitem" data-act="code" id="codeItem">Enter edit code</button>
+      <button role="menuitem" data-act="forget" id="forgetItem" hidden>Stop editing on this phone</button>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <main id="main">
+    <!-- Rankings -->
+    <section class="view" id="view-rankings" aria-labelledby="tab-rankings">
+      <div class="filters">
+        <label class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 4a6.5 6.5 0 1 0 4 11.6l4.2 4.2 1.4-1.4-4.2-4.2A6.5 6.5 0 0 0 10.5 4Zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z"/></svg>
+          <input id="q" type="search" placeholder="Search burgers, spots, toppings" autocomplete="off" aria-label="Search">
+        </label>
+        <div class="filter-row">
+          <select id="city" aria-label="City"></select>
+          <button class="chip" id="onlyRec" aria-pressed="false">7.0 and up</button>
+          <button class="chip clear" id="clearRest" hidden></button>
+        </div>
+      </div>
+      <ol class="list" id="list"></ol>
+      <p class="empty" id="listEmpty" hidden></p>
+    </section>
+
+    <!-- Spots -->
+    <section class="view" id="view-spots" aria-labelledby="tab-spots" hidden>
+      <div class="view-head">
+        <p class="lede">Average score per restaurant, worked out from the rankings every time, so it's never out of date.</p>
+        <label class="toggle"><input type="checkbox" id="multiOnly" checked> Only spots with 2+ burgers</label>
+      </div>
+      <ol class="list spots" id="spots"></ol>
+    </section>
+
+    <!-- Menu checker -->
+    <section class="view" id="view-check" aria-labelledby="tab-check" hidden>
+      <div class="verdict" id="verdict" aria-live="polite"></div>
+      <div id="checklist"></div>
+      <div class="check-foot">
+        <button class="text-btn" id="resetCheck">Clear all</button>
+        <p class="fine">Built from your Perfect Burger Formula tab. It predicts a ceiling, not a score: execution is the one thing a menu can't tell you.</p>
+      </div>
+    </section>
+
+    <!-- Tutorial -->
+    <section class="view" id="view-cook" aria-labelledby="tab-cook" hidden>
+      <div id="tutorial"></div>
+    </section>
+  </main>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <a role="tab" id="tab-rankings" href="#rankings" aria-controls="view-rankings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v2H4zM4 11h12v2H4zM4 16h8v2H4z"/></svg>Rankings</a>
+    <a role="tab" id="tab-spots" href="#spots" aria-controls="view-spots">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>Spots</a>
+    <a role="tab" id="tab-check" href="#check" aria-controls="view-check">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Menu check</a>
+    <a role="tab" id="tab-cook" href="#cook" aria-controls="view-cook">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11h18v2H3zm2-5h14l1 3H4zm-1 9h16l-1 3H5z"/></svg>Cook</a>
+  </nav>
+
+  <!-- Add / edit sheet -->
+  <dialog id="editor" aria-labelledby="editorTitle">
+    <form id="form" method="dialog" novalidate>
+      <div class="sheet-head">
+        <h2 id="editorTitle">Add a burger</h2>
+        <button type="button" class="icon-btn" id="closeEditor" aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg>
+        </button>
+      </div>
+      <label class="field">Burger<input name="burger" required maxlength="100" autocomplete="off"></label>
+      <div class="field score-field">
+        <label for="score">Score</label>
+        <div class="score-row">
+          <button type="button" class="step" data-step="-0.1" aria-label="Lower score by 0.1">−</button>
+          <input id="score" name="score" type="number" inputmode="decimal" min="0" max="10" step="0.1" required>
+          <button type="button" class="step" data-step="0.1" aria-label="Raise score by 0.1">+</button>
+        </div>
+        <p class="preview" id="preview" aria-live="polite"></p>
+      </div>
+      <label class="field">Restaurant<input name="restaurant" required maxlength="100" list="restaurantList" autocomplete="off"></label>
+      <label class="field">City<input name="city" maxlength="80" list="cityList" autocomplete="off" placeholder="Green Bay, WI"></label>
+      <label class="field">Menu link<input name="link" type="url" maxlength="500" placeholder="https://" autocomplete="off"></label>
+      <label class="field">Notes<textarea name="notes" rows="3" maxlength="2000" placeholder="What's on it, what worked, what didn't"></textarea></label>
+      <p class="form-error" id="formError" role="alert" hidden></p>
+      <div class="sheet-actions">
+        <button type="button" class="danger" id="deleteBtn" hidden>Delete</button>
+        <button type="submit" class="primary" id="saveBtn">Save burger</button>
+      </div>
+    </form>
+  </dialog>
+  <datalist id="restaurantList"></datalist>
+  <datalist id="cityList"></datalist>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="config.js"></script>
+  <script src="logic.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
